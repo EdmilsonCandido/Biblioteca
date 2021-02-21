@@ -30,7 +30,7 @@ namespace Biblioteca.Models
             }
         }
 
-        public ICollection<Emprestimo> ListarTodos(FiltrosEmprestimos filtro)
+        public ICollection<Emprestimo> ListarTodos(FiltrosEmprestimos filtro = null)
         {
             using(BibliotecaContext bc = new BibliotecaContext())
             {
@@ -46,13 +46,13 @@ namespace Biblioteca.Models
                         break;
 
                         case "Livro":
-                            List<Livro>LivrosFiltrados = bc.Livros.Where(l => l.Titulo.Contains(filtro.Filtro)).ToList();
+                             List<Livro>LivrosFiltrados = bc.Livros.Where(l => l.Titulo.Contains(filtro.Filtro)).ToList();
                             
                              List<int>LivrosIds = new List<int>();
                              for(int i = 0; i < LivrosFiltrados.Count; i++){
                                  LivrosIds.Add(LivrosFiltrados[i].Id);
-                             }
-                             consulta = bc.Emprestimos.Where(e => LivrosIds.Contains(e.LivroId));
+                             } 
+                             consulta = bc.Emprestimos.Where(e => e.Livro.Titulo.Contains(filtro.Filtro));
                              var debug = consulta.ToList();
                         break;
 
@@ -67,7 +67,7 @@ namespace Biblioteca.Models
                     consulta = bc.Emprestimos;
                 }
                 
-                List<Emprestimo>ListaConsulta = consulta.OrderBy(e => e.DataEmprestimo).ToList();
+                List<Emprestimo>ListaConsulta = consulta.OrderByDescending(e => e.DataDevolucao).ToList();
                 for(int i = 0 ; i < ListaConsulta.Count; i++){
                     ListaConsulta[i].Livro = bc.Livros.Find(ListaConsulta[i].LivroId);
                 }

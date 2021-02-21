@@ -1,0 +1,13 @@
+@model Usuario 
+
+<h1>ALERTA!</h1>
+<H2>Tem certeza qie deseja excluir o usuario @Model.nome (@Model.login)?</H2>
+<p>A exclusão é irreversivel</p>
+
+<form action="ExcluirUsuario" method="post">
+   <input type="hidden" name="id" value="@Model.id"/>
+   <input name="decisao" type="submit" value="CANCELAR"/> 
+   <input name="decisao" type="submit" value="EXCLUIR"/>              
+</form>
+
+<

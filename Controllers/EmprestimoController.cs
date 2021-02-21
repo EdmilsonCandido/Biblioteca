@@ -11,29 +11,47 @@ namespace Biblioteca.Controllers
     {
         public IActionResult Cadastro()
         {
-            LivroService livroService = new LivroService();
-            EmprestimoService emprestimoService = new EmprestimoService();
+            Autenticacao.CheckLogin(this);
+            LivroService LivroService = new LivroService();
+            EmprestimoService EmprestimoService = new EmprestimoService();
 
             CadEmprestimoViewModel cadModel = new CadEmprestimoViewModel();
-            cadModel.Livros = livroService.ListarTodos();
+            cadModel.Livros = LivroService.ListarDisponiveis();
             return View(cadModel);
         }
 
         [HttpPost]
         public IActionResult Cadastro(CadEmprestimoViewModel viewModel)
         {
-            EmprestimoService emprestimoService = new EmprestimoService();
-            
-            if(viewModel.Emprestimo.Id == 0)
+            if(!string.IsNullOrEmpty(viewModel.Emprestimo.NomeUsuario))
             {
-                emprestimoService.Inserir(viewModel.Emprestimo);
+                    EmprestimoService EmprestimoService = new EmprestimoService();
+                
+                if(viewModel.Emprestimo.Id == 0)
+                {
+                    EmprestimoService.Inserir(viewModel.Emprestimo);
+                }
+                else
+                {
+                    EmprestimoService.Atualizar(viewModel.Emprestimo);
+                }
+                return RedirectToAction("Listagem");
             }
             else
             {
-                emprestimoService.Atualizar(viewModel.Emprestimo);
-            }
-            return RedirectToAction("Listagem");
+                ViewData["mensagem"] = "Por Favor, preencha todos os campos";
+
+                LivroService LivroService = new LivroService();
+                EmprestimoService EmprestimoService = new EmprestimoService();
+
+                CadEmprestimoViewModel cadModel = new  CadEmprestimoViewModel();
+
+                cadModel.Livros = LivroService.ListarDisponiveis();
+
+                return View(cadModel);
+            }  
         }
+       
 
         public IActionResult Listagem(string tipoFiltro, string filtro)
         {
@@ -44,18 +62,20 @@ namespace Biblioteca.Controllers
                 objFiltro.Filtro = filtro;
                 objFiltro.TipoFiltro = tipoFiltro;
             }
-            EmprestimoService emprestimoService = new EmprestimoService();
-            return View(emprestimoService.ListarTodos(objFiltro));
+            EmprestimoService EmprestimoService = new EmprestimoService();
+            return View(EmprestimoService.ListarTodos(objFiltro));
         }
 
         public IActionResult Edicao(int id)
         {
-            LivroService livroService = new LivroService();
+            Autenticacao.CheckLogin(this);
+            LivroService LivroService = new LivroService();
             EmprestimoService em = new EmprestimoService();
             Emprestimo e = em.ObterPorId(id);
 
             CadEmprestimoViewModel cadModel = new CadEmprestimoViewModel();
-            cadModel.Livros = livroService.ListarTodos();
+            cadModel.Livros = LivroService.ListarTodos();
+            cadModel.Livros.Add(LivroService.ObterPorId(e.LivroId));
             cadModel.Emprestimo = e;
             
             return View(cadModel);

@@ -1,6 +1,7 @@
 using System;
 
 namespace Biblioteca.Models
+
 {
     public class Emprestimo
     {
